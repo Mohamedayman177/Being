@@ -2518,6 +2518,94 @@
       }
 
       /* =======================================================
+         RESPONSIVE LAYOUT
+      ======================================================== */
+
+      applyResponsiveLayout() {
+
+        const width =
+          window.innerWidth;
+
+        const height =
+          window.innerHeight;
+
+        let itemSize = 320;
+        let cols = 12;
+        let rows = 8;
+
+        if (width <= 480) {
+          itemSize = Math.max(
+            96,
+            Math.min(
+              140,
+              Math.floor(
+                (width - 24) / 3
+              )
+            )
+          );
+          cols = 3;
+          rows = Math.max(
+            4,
+            Math.ceil(
+              this.fashionImages.length /
+                cols
+            )
+          );
+        } else if (width <= 768) {
+          itemSize = Math.max(
+            120,
+            Math.min(
+              180,
+              Math.floor(
+                (width - 28) / 4
+              )
+            )
+          );
+          cols = 4;
+          rows = Math.max(
+            4,
+            Math.ceil(
+              this.fashionImages.length /
+                cols
+            )
+          );
+        } else if (width <= 1100) {
+          itemSize = Math.max(
+            160,
+            Math.min(
+              240,
+              Math.floor(
+                (width - 40) / 5
+              )
+            )
+          );
+          cols = 5;
+          rows = Math.max(
+            4,
+            Math.ceil(
+              this.fashionImages.length /
+                cols
+            )
+          );
+        } else {
+          itemSize = 320;
+          cols = 12;
+          rows = 8;
+        }
+
+        this.config.itemSize =
+          itemSize;
+
+        this.config.cols = cols;
+        this.config.rows = rows;
+
+        document.documentElement.style.setProperty(
+          "--item-size",
+          `${itemSize}px`
+        );
+      }
+
+      /* =======================================================
          GRID
       ======================================================== */
 
@@ -4612,6 +4700,10 @@
           return;
         }
 
+        this.applyResponsiveLayout();
+
+        this.generateGridItems();
+
         this.calculateGridDimensions(
           this.config.currentGap
         );
@@ -4635,43 +4727,13 @@
         this.isInitialized =
           true;
 
-        /* Sync mobile item size */
+        this.applyResponsiveLayout();
 
-        const width =
-          window.innerWidth;
-
-        if (
-          width <= 480
-        ) {
-
-          this.config.itemSize =
-            180;
-
-        } else if (
-          width <= 768
-        ) {
-
-          this.config.itemSize =
-            220;
-
-        } else if (
-          width <= 1100
-        ) {
-
-          this.config.itemSize =
-            280;
-
-        } else {
-
-          this.config.itemSize =
-            320;
-
-        }
-
-        document.documentElement.style.setProperty(
-          "--item-size",
-          `${this.config.itemSize}px`
-        );
+        this.config.currentZoom =
+          Math.min(
+            this.config.currentZoom,
+            this.calculateFitZoom()
+          );
 
         this.generateGridItems();
 
