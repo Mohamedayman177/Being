@@ -1,0 +1,4802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+  />
+
+  <meta name="theme-color" content="#000000" />
+
+  <title>Fashion Gallery</title>
+
+  <!-- =========================================================
+       FONTS
+  ========================================================== -->
+
+  <link
+    rel="stylesheet"
+    href="https://fonts.cdnfonts.com/css/thegoodmonolith"
+  />
+
+  <style>
+    @font-face {
+      font-family: "PPNeueMontreal";
+      src: url("https://assets.codepen.io/7558/PPNeueMontreal-Variable.woff2")
+        format("woff2");
+      font-weight: 100 900;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    /* =========================================================
+       RESET
+    ========================================================== */
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: #000;
+    }
+
+    body {
+      font-family: "PPNeueMontreal", Arial, sans-serif;
+      color: #fff;
+      cursor: grab;
+      overscroll-behavior: none;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    body.dragging {
+      cursor: grabbing;
+    }
+
+    body.zoom-mode {
+      cursor: default;
+    }
+
+    button,
+    a {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    a {
+      color: #fff;
+      text-decoration: none;
+    }
+
+    ul {
+      list-style: none;
+    }
+
+    p,
+    h1,
+    h2,
+    h3 {
+      margin: 0;
+    }
+
+    /* =========================================================
+       VARIABLES
+    ========================================================== */
+
+    :root {
+      --text: #fff;
+      --muted: rgba(255, 255, 255, 0.65);
+
+      --spacing-base: 1rem;
+      --spacing-md: 1.5rem;
+
+      --header-padding: 24px;
+
+      --item-size: 320px;
+
+      --ui-dark: #222;
+      --ui-light: #f0f0f0;
+
+      --transition: 0.3s ease;
+
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --safe-top: env(safe-area-inset-top, 0px);
+    }
+
+    /* =========================================================
+       PRELOADER
+    ========================================================== */
+
+    #preloader-overlay {
+      position: fixed;
+      inset: 0;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      background: #000;
+
+      z-index: 100000;
+
+      opacity: 1;
+      visibility: visible;
+
+      pointer-events: all;
+
+      will-change: opacity;
+    }
+
+    #preloader-overlay canvas {
+      width: 300px;
+      height: 300px;
+      max-width: 70vw;
+      max-height: 70vw;
+    }
+
+    /* =========================================================
+       HEADER / FOOTER
+    ========================================================== */
+
+    .header,
+    .footer {
+      position: fixed;
+
+      left: 0;
+
+      width: 100%;
+
+      padding:
+        calc(var(--header-padding) + var(--safe-top))
+        var(--header-padding)
+        var(--header-padding);
+
+      z-index: 10000;
+
+      display: grid;
+
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+
+      column-gap: 16px;
+
+      pointer-events: none;
+
+      opacity: 0;
+
+      will-change: opacity;
+    }
+
+    .header {
+      top: 0;
+    }
+
+    .footer {
+      bottom: 0;
+
+      padding:
+        var(--header-padding)
+        var(--header-padding)
+        calc(var(--header-padding) + var(--safe-bottom));
+    }
+
+    .header > *,
+    .footer > * {
+      pointer-events: auto;
+      min-width: 0;
+    }
+
+    .nav-section {
+      grid-column: 1 / span 3;
+    }
+
+    .values-section {
+      grid-column: 5 / span 2;
+    }
+
+    .location-section {
+      grid-column: 7 / span 2;
+    }
+
+    .contact-section {
+      grid-column: 9 / span 2;
+    }
+
+    .social-section {
+      grid-column: 11 / span 2;
+      text-align: right;
+    }
+
+    .info-section {
+      grid-column: 9 / span 4;
+      text-align: right;
+    }
+
+    .header h3 {
+      margin-bottom: 16px;
+
+      font-size: 14px;
+      line-height: 1;
+
+      font-weight: 600;
+
+      color: #fff;
+    }
+
+    .header p,
+    .footer p {
+      color: #fff;
+
+      font-size: 14px;
+
+      line-height: 1.4;
+
+      font-weight: 500;
+
+      letter-spacing: -0.01em;
+    }
+
+    .footer p {
+      font-family: "TheGoodMonolith", monospace;
+      font-size: 11px;
+    }
+
+    .header li {
+      margin-bottom: 4px;
+    }
+
+    /* =========================================================
+       LOGO
+    ========================================================== */
+
+    .logo-container {
+      display: block;
+
+      width: 48px;
+      height: 24px;
+
+      position: relative;
+
+      cursor: pointer;
+    }
+
+    .logo-circles {
+      position: relative;
+
+      width: 100%;
+      height: 100%;
+    }
+
+    .circle {
+      position: absolute;
+
+      top: 50%;
+
+      width: 22px;
+      height: 22px;
+
+      border-radius: 50%;
+
+      background: #fff;
+
+      transition:
+        transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+        opacity 0.3s ease;
+
+      transform: translateY(-50%);
+    }
+
+    .circle-1 {
+      left: 0;
+    }
+
+    .circle-2 {
+      left: 13px;
+
+      mix-blend-mode: exclusion;
+    }
+
+    .logo-container:hover .circle-1 {
+      transform: translate(-8px, -50%);
+    }
+
+    .logo-container:hover .circle-2 {
+      transform: translate(8px, -50%);
+    }
+
+    /* =========================================================
+       LINKS
+    ========================================================== */
+
+    .header a {
+      position: relative;
+
+      display: inline-block;
+
+      color: #fff;
+
+      font-size: 14px;
+
+      font-weight: 600;
+
+      line-height: 1.3;
+
+      transition:
+        color 0.3s ease,
+        opacity 0.3s ease;
+
+      z-index: 1;
+    }
+
+    .header a::after {
+      content: "";
+
+      position: absolute;
+
+      left: 0;
+      bottom: 0;
+
+      width: 0;
+      height: 100%;
+
+      background: #fff;
+
+      z-index: -1;
+
+      transition:
+        width 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .header a:hover::after {
+      width: 100%;
+    }
+
+    .header a:hover {
+      color: #000;
+      mix-blend-mode: difference;
+    }
+
+    .content__nav {
+      position: fixed;
+      top: 24px;
+      left: 24px;
+      z-index: 11000;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      font-family: "PPNeueMontreal", Arial, sans-serif;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      pointer-events: auto;
+      padding: 10px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+
+
+    .content__nav-brand .logo-mark {
+      width: 100%;
+      height: 30px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .content__nav-item,
+    .tags a {
+      display: inline-block;
+      color: rgba(255, 255, 255, 0.9);
+      text-decoration: none;
+      transition: color 0.3s ease, opacity 0.3s ease;
+    }
+
+    .content__nav-item:hover,
+    .tags a:hover {
+      color: #fff;
+      text-decoration: none;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    @media (max-width: 700px) {
+      .content__nav {
+        padding: 10px 14px;
+        gap: 0.55rem;
+      }
+
+      .content__nav-brand {
+        border-right: none;
+        padding-right: 0;
+        margin-right: 0;
+      }
+
+      .content__nav-item,
+      .tags a {
+        font-size: 10px;
+      }
+    }
+
+    /* =========================================================
+       MAIN VIEWPORT
+    ========================================================== */
+
+    .viewport {
+      position: fixed;
+
+      inset: 0;
+
+      width: 100vw;
+      height: 100dvh;
+
+      overflow: hidden;
+
+      z-index: 1;
+
+      opacity: 0;
+
+      touch-action: none;
+
+      contain: layout paint size;
+    }
+
+    .canvas-wrapper {
+      position: absolute;
+
+      top: 0;
+      left: 0;
+
+      transform-origin: 0 0;
+
+      will-change: transform;
+
+      isolation: isolate;
+
+      contain: layout style paint;
+    }
+
+    .grid-container {
+      position: relative;
+
+      width: 100%;
+      height: 100%;
+    }
+
+    /* =========================================================
+       GRID ITEM
+    ========================================================== */
+
+    .grid-item {
+      position: absolute;
+
+      width: var(--item-size);
+      height: var(--item-size);
+
+      overflow: hidden;
+
+      background: #090909;
+
+      cursor: pointer;
+
+      will-change: transform, opacity;
+
+      z-index: 1;
+
+      opacity: 1;
+
+      contain: layout paint;
+
+      transform: translateZ(0);
+
+      backface-visibility: hidden;
+    }
+
+    .grid-item::after {
+      content: "";
+
+      position: absolute;
+
+      inset: 0;
+
+      background: rgba(0, 0, 0, 0);
+
+      pointer-events: none;
+
+      transition: background 0.4s ease;
+    }
+
+    .grid-item:hover::after {
+      background: rgba(255, 255, 255, 0.035);
+    }
+
+    .grid-item img {
+      display: block;
+
+      width: 100%;
+      height: 100%;
+
+      object-fit: cover;
+
+      pointer-events: none;
+
+      user-select: none;
+
+      -webkit-user-drag: none;
+
+      backface-visibility: hidden;
+
+      transform: translateZ(0);
+    }
+
+    .grid-item.image-error {
+      display: flex;
+
+      align-items: center;
+      justify-content: center;
+
+      background:
+        radial-gradient(
+          circle at center,
+          #222 0,
+          #111 45%,
+          #000 100%
+        );
+    }
+
+    .grid-item.image-error::before {
+      content: "IMAGE";
+
+      color: rgba(255, 255, 255, 0.25);
+
+      font-family: "TheGoodMonolith", monospace;
+
+      font-size: 10px;
+
+      letter-spacing: 2px;
+    }
+
+    /* =========================================================
+       SPLIT SCREEN
+    ========================================================== */
+
+    .split-screen-container {
+      position: fixed;
+
+      inset: 0;
+
+      width: 100vw;
+      height: 100dvh;
+
+      display: flex;
+
+      z-index: 2;
+
+      opacity: 0;
+
+      visibility: hidden;
+
+      pointer-events: none;
+
+      background: rgba(0, 0, 0, 0.9);
+
+      overflow: hidden;
+    }
+
+    .split-screen-container.active {
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    .split-left,
+    .split-right {
+      position: relative;
+
+      width: 50%;
+      height: 100%;
+
+      background: rgba(0, 0, 0, 0.65);
+
+      display: flex;
+
+      align-items: center;
+      justify-content: center;
+
+      cursor: pointer;
+
+      overflow: hidden;
+    }
+
+    .split-left {
+      border-right: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .zoom-target {
+      position: relative;
+
+      width: 100%;
+      height: 100%;
+
+      display: flex;
+
+      align-items: center;
+      justify-content: center;
+
+      z-index: 1;
+    }
+
+    .zoom-target::before {
+      content: "IMAGE TARGET";
+
+      color: rgba(255, 255, 255, 0.25);
+
+      font-family: "TheGoodMonolith", monospace;
+
+      font-size: 10px;
+
+      letter-spacing: 2px;
+    }
+
+    .split-screen-container.active
+      .zoom-target::before {
+      display: none;
+    }
+
+    /* =========================================================
+       SCALING IMAGE
+    ========================================================== */
+
+    .scaling-image-overlay {
+      position: fixed;
+
+      top: 0;
+      left: 0;
+
+      z-index: 3;
+
+      pointer-events: none;
+
+      will-change: transform, opacity;
+
+      overflow: hidden;
+
+      transform: translateZ(0);
+
+      backface-visibility: hidden;
+    }
+
+    .scaling-image-overlay img {
+      display: block;
+
+      width: 100%;
+      height: 100%;
+
+      object-fit: cover;
+
+      pointer-events: none;
+
+      transform: translateZ(0);
+
+      backface-visibility: hidden;
+    }
+
+    /* =========================================================
+       TITLE OVERLAY
+    ========================================================== */
+
+    .image-title-overlay {
+      position: fixed;
+
+      left: 40px;
+      bottom: 40px;
+
+      max-width: min(500px, calc(100vw - 80px));
+
+      color: #fff;
+
+      z-index: 4;
+
+      opacity: 0;
+
+      pointer-events: none;
+    }
+
+    .image-slide-number {
+      position: relative;
+
+      width: 400px;
+      max-width: 100%;
+
+      height: 20px;
+
+      margin-bottom: 8px;
+
+      overflow: hidden;
+    }
+
+    .image-slide-number span {
+      position: absolute;
+
+      top: 0;
+      left: 0;
+
+      color: #fff;
+
+      font-family: "TheGoodMonolith", monospace;
+
+      font-size: 11px;
+
+      line-height: 1.5;
+
+      letter-spacing: 0.1em;
+
+      will-change: transform, opacity;
+    }
+
+    .image-slide-title {
+      position: relative;
+
+      width: 400px;
+      max-width: 100%;
+
+      min-height: 58px;
+
+      margin-bottom: 14px;
+
+      overflow: hidden;
+    }
+
+    .image-slide-title h1 {
+      position: absolute;
+
+      top: 0;
+      left: 0;
+
+      width: 100%;
+
+      color: #fff;
+
+      font-family: "PPNeueMontreal", sans-serif;
+
+      font-size: clamp(30px, 4vw, 48px);
+
+      font-weight: 500;
+
+      line-height: 1.15;
+
+      letter-spacing: -0.03em;
+
+      will-change: transform, opacity;
+    }
+
+    .image-slide-description {
+      position: relative;
+
+      width: 400px;
+      max-width: 100%;
+
+      min-height: 80px;
+
+      overflow: hidden;
+    }
+
+    .description-line {
+      display: block;
+
+      color: rgba(255, 255, 255, 0.78);
+
+      font-family: "PPNeueMontreal", sans-serif;
+
+      font-size: 15px;
+
+      font-weight: 300;
+
+      line-height: 1.4;
+
+      will-change: transform, opacity;
+    }
+
+    /* =========================================================
+       CLOSE BUTTON
+    ========================================================== */
+
+    .close-button {
+      position: fixed;
+
+      top: 50%;
+      right: 20px;
+
+      width: 64px;
+      height: 64px;
+
+      padding: 0;
+
+      background: transparent;
+
+      border: 0;
+
+      outline: 0;
+
+      cursor: pointer;
+
+      display: flex;
+
+      align-items: center;
+      justify-content: center;
+
+      z-index: 10;
+
+      opacity: 0;
+
+      pointer-events: none;
+
+      transform: translate(40px, -50%);
+
+      transition: opacity 0.25s ease;
+    }
+
+    .close-button.active {
+      pointer-events: auto;
+    }
+
+    .close-button:hover {
+      opacity: 0.65 !important;
+    }
+
+    .close-button svg {
+      width: 42px;
+      height: 42px;
+
+      transform: rotate(180deg);
+    }
+
+    /* =========================================================
+       CONTROLS
+    ========================================================== */
+
+    .controls-container {
+      position: fixed;
+
+      left: 50%;
+      bottom: calc(20px + var(--safe-bottom));
+
+      transform: translateX(-50%);
+
+      display: flex;
+
+      align-items: stretch;
+
+      gap: 4px;
+
+      z-index: 20;
+
+      opacity: 0;
+
+      pointer-events: none;
+
+      transition:
+        left 1.2s cubic-bezier(0.87, 0, 0.13, 1);
+    }
+
+    .controls-container.visible {
+      pointer-events: auto;
+    }
+
+    .controls-container.split-mode {
+      left: 75%;
+    }
+
+    .percentage-indicator,
+    .switch,
+    .sound-toggle {
+      background-color: #f0f0f0;
+
+      background-image:
+        radial-gradient(
+          rgba(0, 0, 0, 0.015) 1px,
+          transparent 0
+        );
+
+      background-size: 7px 7px;
+
+      background-position: -1px -1px;
+
+      border-radius: 4px;
+    }
+
+    .percentage-indicator {
+      min-width: 70px;
+
+      padding: 10px 16px;
+
+      display: flex;
+
+      align-items: center;
+      justify-content: center;
+
+      color: #333;
+
+      font-family: "TheGoodMonolith", monospace;
+
+      font-size: 11px;
+
+      font-weight: 400;
+    }
+
+    .switch {
+      display: flex;
+
+      align-items: center;
+
+      gap: 10px;
+
+      padding: 7px 12px;
+
+      background-color: #222;
+
+      background-image:
+        radial-gradient(
+          rgba(255, 255, 255, 0.015) 1px,
+          transparent 0
+        );
+    }
+
+    .switch-button {
+      position: relative;
+
+      padding: 5px 9px;
+
+      color: #666;
+
+      background: transparent;
+
+      border: 0;
+
+      outline: 0;
+
+      cursor: pointer;
+
+      font-family: "TheGoodMonolith", monospace;
+
+      font-size: 11px;
+
+      font-weight: 400;
+
+      text-transform: uppercase;
+
+      white-space: nowrap;
+
+      transition: color 0.25s ease;
+    }
+
+    .switch-button:hover,
+    .switch-button-current {
+      color: #f0f0f0;
+    }
+
+    .indicator-dot {
+      position: absolute;
+
+      left: -3px;
+      top: 50%;
+
+      width: 4px;
+      height: 4px;
+
+      border-radius: 50%;
+
+      background: #fff;
+
+      opacity: 0;
+
+      transform: translate(-100%, -50%);
+
+      transition: opacity 0.25s ease;
+    }
+
+    .switch-button:hover .indicator-dot,
+    .switch-button-current .indicator-dot {
+      opacity: 1;
+    }
+
+    .sound-toggle {
+      min-width: 58px;
+
+      padding: 8px 12px;
+
+      display: flex;
+
+      align-items: center;
+      justify-content: center;
+
+      cursor: pointer;
+
+      border: 0;
+
+      outline: 0;
+    }
+
+    .sound-wave-canvas {
+      width: 32px;
+      height: 16px;
+
+      display: block;
+
+      pointer-events: none;
+    }
+
+    /* =========================================================
+       VIGNETTE
+    ========================================================== */
+
+    .page-vignette-container {
+      position: fixed;
+
+      inset: 0;
+
+      width: 100%;
+      height: 100%;
+
+      pointer-events: none;
+
+      z-index: 9998;
+    }
+
+    .page-vignette-extreme {
+      position: absolute;
+
+      inset: 0;
+
+      background:
+        linear-gradient(
+          to bottom,
+          rgba(0, 0, 0, 0.75) 0%,
+          rgba(0, 0, 0, 0.3) 15%,
+          transparent 40%
+        ),
+        radial-gradient(
+          ellipse at center,
+          transparent 45%,
+          rgba(0, 0, 0, 0.25) 100%
+        );
+    }
+
+    /* =========================================================
+       TABLET
+    ========================================================== */
+
+    @media (max-width: 1100px) {
+      :root {
+        --header-padding: 18px;
+        --item-size: 280px;
+      }
+
+      .header,
+      .footer {
+        column-gap: 10px;
+      }
+
+      .header h3,
+      .header p,
+      .header a {
+        font-size: 12px;
+      }
+
+      .controls-container {
+        bottom: calc(14px + var(--safe-bottom));
+      }
+    }
+
+    /* =========================================================
+       MOBILE
+    ========================================================== */
+
+    @media (max-width: 768px) {
+      :root {
+        --header-padding: 14px;
+        --item-size: 220px;
+      }
+
+      .header {
+        grid-template-columns: repeat(6, 1fr);
+
+        row-gap: 18px;
+      }
+
+      .nav-section {
+        grid-column: 1 / span 2;
+      }
+
+      .values-section {
+        grid-column: 3 / span 2;
+      }
+
+      .location-section {
+        display: none;
+      }
+
+      .contact-section {
+        grid-column: 5 / span 2;
+      }
+
+      .social-section {
+        display: none;
+      }
+
+      .footer {
+        grid-template-columns: 1fr;
+      }
+
+      .info-section {
+        grid-column: 1;
+
+        text-align: left;
+      }
+
+      .info-section p:last-child {
+        display: none;
+      }
+
+      .split-screen-container {
+        flex-direction: column;
+      }
+
+      .split-left,
+      .split-right {
+        width: 100%;
+        height: 50%;
+      }
+
+      .split-left {
+        border-right: 0;
+
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      }
+
+      .image-title-overlay {
+        left: 16px;
+        bottom: calc(90px + var(--safe-bottom));
+
+        max-width: calc(100vw - 32px);
+      }
+
+      .image-slide-number {
+        width: 280px;
+      }
+
+      .image-slide-title {
+        width: 320px;
+      }
+
+      .image-slide-description {
+        width: min(360px, calc(100vw - 32px));
+      }
+
+      .description-line {
+        font-size: 13px;
+      }
+
+      .close-button {
+        top: 20px;
+        right: 12px;
+
+        transform: translate(40px, 0);
+      }
+
+      .controls-container {
+        left: 50% !important;
+
+        bottom: calc(10px + var(--safe-bottom));
+
+        max-width: calc(100vw - 20px);
+
+        overflow-x: auto;
+
+        scrollbar-width: none;
+      }
+
+      .controls-container::-webkit-scrollbar {
+        display: none;
+      }
+
+      .percentage-indicator {
+        min-width: 54px;
+
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+
+      .switch {
+        gap: 0;
+
+        padding-left: 5px;
+        padding-right: 5px;
+      }
+
+      .switch-button {
+        padding: 6px 6px;
+
+        font-size: 9px;
+      }
+
+      .sound-toggle {
+        min-width: 48px;
+      }
+    }
+
+    /* =========================================================
+       SMALL PHONES
+    ========================================================== */
+
+    @media (max-width: 480px) {
+      :root {
+        --item-size: 180px;
+      }
+
+      .header {
+        padding-top: calc(12px + var(--safe-top));
+      }
+
+      .header h3 {
+        margin-bottom: 10px;
+
+        font-size: 10px;
+      }
+
+      .header p,
+      .header a {
+        font-size: 10px;
+      }
+
+      .logo-container {
+        transform: scale(0.8);
+
+        transform-origin: left top;
+      }
+
+      .image-title-overlay {
+        bottom: calc(82px + var(--safe-bottom));
+      }
+
+      .image-slide-title {
+        min-height: 44px;
+      }
+
+      .image-slide-title h1 {
+        font-size: 29px;
+      }
+
+      .image-slide-description {
+        min-height: 60px;
+      }
+
+      .description-line {
+        font-size: 12px;
+      }
+
+      .percentage-indicator {
+        display: none;
+      }
+    }
+
+    /* =========================================================
+       REDUCED MOTION
+    ========================================================== */
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- =========================================================
+       PRELOADER
+  ========================================================== -->
+
+  <div id="preloader-overlay"></div>
+
+  <!-- =========================================================
+       HEADER
+  ========================================================== --
+
+  <header class="header">
+
+    <div class="nav-section">
+
+      <div
+        class="logo-container"
+        id="logo"
+        role="button"
+        tabindex="0"
+        aria-label="Reset gallery position"
+      >
+        <div class="logo-circles">
+          <div class="circle circle-1"></div>
+          <div class="circle circle-2"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="values-section">
+      <h3>+Menu</h3>
+
+      <ul>
+        <li><a href="#work">Work</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#services">Services</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </div>
+
+    <div class="location-section">
+      <h3>+Studio</h3>
+      <p>Los Angeles</p>
+      <p>California</p>
+    </div>
+
+    <div class="contact-section">
+      <h3>+Connect</h3>
+
+      <p>
+        <a href="mailto:hi@filip.fyi">
+          hi@filip.fyi
+        </a>
+      </p>
+    </div>
+
+    <div class="social-section">
+      <h3>+Follow</h3>
+
+      <ul>
+        <li>
+          <a
+            href="https://instagram.com/filipz__"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Instagram
+          </a>
+        </li>
+
+        <li>
+          <a
+            href="https://x.com/filipz"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Twitter
+          </a>
+        </li>
+
+        <li>
+          <a
+            href="https://linkedin.com/in/filipzrnzevic"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            LinkedIn
+          </a>
+        </li>
+      </ul>
+    </div>
+
+  </header>-->
+  <!-- =========================================================
+       MAIN VIEWPORT
+  ========================================================== -->
+
+  <nav class="content__nav" aria-label="Secondary navigation">
+    <div class="content__nav-brand">
+    <a href="index.html"><img class="logo-mark" src="https://res.cloudinary.com/ngymeeef/image/upload/v1785135159/BEING_qjfypv.webp" alt="BEING logo" /></a>
+    </div>
+  </nav>
+
+  <main
+    class="viewport"
+    id="viewport"
+    aria-label="Fashion image gallery"
+  >
+    <div
+      class="canvas-wrapper"
+      id="canvasWrapper"
+    >
+      <div
+        class="grid-container"
+        id="gridContainer"
+      ></div>
+    </div>
+  </main>
+
+  <!-- =========================================================
+       SPLIT SCREEN
+  ========================================================== -->
+
+  <div
+    class="split-screen-container"
+    id="splitScreenContainer"
+    aria-hidden="true"
+  >
+
+    <div
+      class="split-left"
+      id="splitLeft"
+    >
+      <div
+        class="zoom-target"
+        id="zoomTarget"
+      ></div>
+    </div>
+
+    <div
+      class="split-right"
+      id="splitRight"
+    ></div>
+
+  </div>
+
+  <!-- =========================================================
+       IMAGE TITLE
+  ========================================================== -->
+
+  <div
+    class="image-title-overlay"
+    id="imageTitleOverlay"
+  >
+
+    <div
+      class="image-slide-number"
+      id="imageSlideNumber"
+    >
+      <span>01</span>
+    </div>
+
+    <div
+      class="image-slide-title"
+      id="imageSlideTitle"
+    >
+      <h1>Begin Before You're Ready</h1>
+    </div>
+
+    <div
+      class="image-slide-description"
+      id="imageSlideDescription"
+    ></div>
+
+  </div>
+
+  <!-- =========================================================
+       CLOSE
+  ========================================================== -->
+
+  <button
+    class="close-button"
+    id="closeButton"
+    type="button"
+    aria-label="Close image"
+  >
+    <svg
+      width="64"
+      height="64"
+      viewBox="0 0 16 16"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <path
+        d="M7.89873 16L6.35949 14.48L11.8278 9.08H0V6.92H11.8278L6.35949 1.52L7.89873 0L16 8L7.89873 16Z"
+        fill="white"
+      />
+    </svg>
+  </button>
+
+  <!-- =========================================================
+       CONTROLS
+  ========================================================== -->
+
+  <div
+    class="controls-container"
+    id="controlsContainer"
+  >
+
+    <div
+      class="percentage-indicator"
+      id="percentageIndicator"
+    >
+      60%
+    </div>
+
+    <div
+      class="switch"
+      id="controls"
+    >
+
+      <button
+        class="switch-button"
+        data-zoom="0.3"
+        type="button"
+      >
+        <span class="indicator-dot"></span>
+        ZOOM OUT
+      </button>
+
+      <button
+        class="switch-button switch-button-current"
+        data-zoom="0.6"
+        type="button"
+      >
+        <span class="indicator-dot"></span>
+        NORMAL
+      </button>
+
+      <button
+        class="switch-button"
+        data-zoom="1"
+        type="button"
+      >
+        <span class="indicator-dot"></span>
+        ZOOM IN
+      </button>
+
+      <button
+        class="switch-button"
+        data-fit="true"
+        type="button"
+      >
+        <span class="indicator-dot"></span>
+        FIT
+      </button>
+
+    </div>
+
+    <button
+      class="sound-toggle"
+      id="soundToggle"
+      type="button"
+      aria-label="Toggle sound"
+      aria-pressed="false"
+    >
+      <canvas
+        class="sound-wave-canvas"
+        id="soundWaveCanvas"
+        width="32"
+        height="16"
+      ></canvas>
+    </button>
+
+  </div>
+
+  <!-- =========================================================
+       FOOTER
+  ========================================================== -
+
+  <footer class="footer">
+
+    <div class="info-section">
+      <p>Est. 2025 • Summer Days</p>
+      <p>34.0522° N, 118.2437° W</p>
+    </div>
+
+  </footer>
+
+  <!-- =========================================================
+       VIGNETTE
+  ========================================================== -->
+
+  <div
+    class="page-vignette-container"
+    aria-hidden="true"
+  >
+    <div class="page-vignette-extreme"></div>
+  </div>
+
+  <!-- =========================================================
+       GSAP
+  ========================================================== -->
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.7/dist/gsap.min.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.7/dist/Draggable.min.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.7/dist/InertiaPlugin.min.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.7/dist/CustomEase.min.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.7/dist/Flip.min.js"></script>
+
+  <!-- =========================================================
+       APPLICATION
+  ========================================================== -->
+
+  <script>
+    "use strict";
+
+    /* =========================================================
+       SAFETY CHECK
+    ========================================================== */
+
+    if (typeof gsap === "undefined") {
+      throw new Error("GSAP failed to load.");
+    }
+
+    if (typeof Draggable !== "undefined") {
+      gsap.registerPlugin(Draggable);
+    }
+
+    if (typeof InertiaPlugin !== "undefined") {
+      gsap.registerPlugin(InertiaPlugin);
+    }
+
+    if (typeof CustomEase !== "undefined") {
+      gsap.registerPlugin(CustomEase);
+    }
+
+    if (typeof Flip !== "undefined") {
+      gsap.registerPlugin(Flip);
+    }
+
+    /* =========================================================
+       PRELOADER
+    ========================================================== */
+
+    class PreloaderManager {
+
+      constructor() {
+
+        this.overlay =
+          document.getElementById(
+            "preloader-overlay"
+          );
+
+        this.canvas =
+          document.createElement("canvas");
+
+        this.ctx =
+          this.canvas.getContext("2d", {
+            alpha: true
+          });
+
+        this.animationId = null;
+
+        this.startTime = null;
+
+        this.duration = 1800;
+
+        this.finished = false;
+
+        this.init();
+
+      }
+
+      init() {
+
+        if (!this.overlay) return;
+
+        this.canvas.width = 300;
+        this.canvas.height = 300;
+
+        this.overlay.appendChild(
+          this.canvas
+        );
+
+        this.startAnimation();
+
+      }
+
+      hexToRgb(hex) {
+
+        return [
+          parseInt(hex.slice(1, 3), 16),
+          parseInt(hex.slice(3, 5), 16),
+          parseInt(hex.slice(5, 7), 16)
+        ];
+
+      }
+
+      startAnimation() {
+
+        const centerX = 150;
+        const centerY = 150;
+
+        const rings = [
+          { radius: 20, count: 8 },
+          { radius: 35, count: 12 },
+          { radius: 50, count: 16 },
+          { radius: 65, count: 20 },
+          { radius: 80, count: 24 }
+        ];
+
+        const primary = this.hexToRgb(
+          "#2C1B14"
+        );
+
+        const accent = this.hexToRgb(
+          "#A64B23"
+        );
+
+        const render = (timestamp) => {
+
+          if (this.finished) return;
+
+          if (!this.startTime) {
+            this.startTime = timestamp;
+          }
+
+          const elapsed =
+            timestamp - this.startTime;
+
+          const time =
+            elapsed * 0.001;
+
+          this.ctx.clearRect(
+            0,
+            0,
+            300,
+            300
+          );
+
+          /* Center */
+
+          this.ctx.beginPath();
+
+          this.ctx.arc(
+            centerX,
+            centerY,
+            3,
+            0,
+            Math.PI * 2
+          );
+
+          this.ctx.fillStyle =
+            `rgba(
+              ${primary[0]},
+              ${primary[1]},
+              ${primary[2]},
+              .95
+            )`;
+
+          this.ctx.fill();
+
+          /* Rings */
+
+          rings.forEach(
+            (ring, ringIndex) => {
+
+              for (
+                let i = 0;
+                i < ring.count;
+                i++
+              ) {
+
+                const angle =
+                  (i / ring.count) *
+                  Math.PI *
+                  2;
+
+                const pulse =
+                  Math.sin(
+                    time * 2 -
+                    ringIndex * 0.4
+                  ) * 3;
+
+                const radius =
+                  ring.radius + pulse;
+
+                const x =
+                  centerX +
+                  Math.cos(angle) *
+                  radius;
+
+                const y =
+                  centerY +
+                  Math.sin(angle) *
+                  radius;
+
+                const wave =
+                  Math.sin(
+                    time * 2 -
+                    ringIndex * 0.4 +
+                    i * 0.2
+                  );
+
+                const active =
+                  wave > 0.6;
+
+                const opacity =
+                  Math.max(
+                    0.08,
+                    0.4 + wave * 0.6
+                  );
+
+                const color =
+                  active
+                    ? accent
+                    : primary;
+
+                /* Line */
+
+                this.ctx.beginPath();
+
+                this.ctx.moveTo(
+                  centerX,
+                  centerY
+                );
+
+                this.ctx.lineTo(
+                  x,
+                  y
+                );
+
+                this.ctx.lineWidth = 0.8;
+
+                this.ctx.strokeStyle =
+                  `rgba(
+                    ${color[0]},
+                    ${color[1]},
+                    ${color[2]},
+                    ${opacity * 0.65}
+                  )`;
+
+                this.ctx.stroke();
+
+                /* Dot */
+
+                this.ctx.beginPath();
+
+                this.ctx.arc(
+                  x,
+                  y,
+                  2.5,
+                  0,
+                  Math.PI * 2
+                );
+
+                this.ctx.fillStyle =
+                  `rgba(
+                    ${color[0]},
+                    ${color[1]},
+                    ${color[2]},
+                    ${opacity}
+                  )`;
+
+                this.ctx.fill();
+
+              }
+
+            }
+          );
+
+          if (
+            elapsed >= this.duration
+          ) {
+
+            this.complete();
+
+            return;
+
+          }
+
+          this.animationId =
+            requestAnimationFrame(
+              render
+            );
+
+        };
+
+        this.animationId =
+          requestAnimationFrame(
+            render
+          );
+
+      }
+
+      complete(callback) {
+
+        if (this.finished) return;
+
+        this.finished = true;
+
+        if (this.animationId) {
+
+          cancelAnimationFrame(
+            this.animationId
+          );
+
+        }
+
+        if (!this.overlay) {
+
+          if (callback) callback();
+
+          return;
+
+        }
+
+        gsap.to(
+          this.overlay,
+          {
+            opacity: 0,
+            duration: 0.65,
+            ease: "power2.out",
+            onComplete: () => {
+
+              this.overlay.remove();
+
+              if (callback) {
+                callback();
+              }
+
+            }
+          }
+        );
+
+      }
+
+    }
+
+    /* =========================================================
+       FASHION GALLERY
+    ========================================================== */
+
+    class FashionGallery {
+
+      constructor() {
+
+        this.viewport =
+          document.getElementById(
+            "viewport"
+          );
+
+        this.canvasWrapper =
+          document.getElementById(
+            "canvasWrapper"
+          );
+
+        this.gridContainer =
+          document.getElementById(
+            "gridContainer"
+          );
+
+        this.splitScreenContainer =
+          document.getElementById(
+            "splitScreenContainer"
+          );
+
+        this.zoomTarget =
+          document.getElementById(
+            "zoomTarget"
+          );
+
+        this.imageTitleOverlay =
+          document.getElementById(
+            "imageTitleOverlay"
+          );
+
+        this.closeButton =
+          document.getElementById(
+            "closeButton"
+          );
+
+        this.controlsContainer =
+          document.getElementById(
+            "controlsContainer"
+          );
+
+        this.soundToggle =
+          document.getElementById(
+            "soundToggle"
+          );
+
+        this.percentageIndicator =
+          document.getElementById(
+            "percentageIndicator"
+          );
+
+        this.descriptionContainer =
+          document.getElementById(
+            "imageSlideDescription"
+          );
+
+        this.gridItems = [];
+
+        this.draggable = null;
+
+        this.resizeTimer = null;
+
+        this.isInitialized = false;
+
+        this.imageLoadPromises = [];
+
+        this.config = {
+
+          itemSize: 320,
+
+          baseGap: 16,
+
+          rows: 8,
+
+          cols: 12,
+
+          currentZoom: 0.6,
+
+          currentGap: 32
+
+        };
+
+        this.zoomState = {
+
+          isActive: false,
+
+          selectedItem: null,
+
+          scalingOverlay: null,
+
+          animation: null
+
+        };
+
+        this.lastValidPosition = {
+
+          x: 0,
+
+          y: 0
+
+        };
+
+        this.customEase =
+          typeof CustomEase !== "undefined"
+            ? CustomEase.create(
+                "gallerySmooth",
+                ".87,0,.13,1"
+              )
+            : "power3.inOut";
+
+        this.centerEase =
+          typeof CustomEase !== "undefined"
+            ? CustomEase.create(
+                "galleryCenter",
+                ".25,.46,.45,.94"
+              )
+            : "power2.inOut";
+
+        this.fashionImages = [];
+
+        this.imageData = [];
+
+        this.descriptionLines = [];
+
+        this.initImageData();
+
+        this.initSoundSystem();
+
+      }
+
+      /* =======================================================
+         IMAGE DATA
+      ======================================================== */
+
+      initImageData() {
+
+        for (
+          let i = 1;
+          i <= 14;
+          i++
+        ) {
+
+          const number =
+            String(i).padStart(2, "0");
+
+          this.fashionImages.push(
+            `https://assets.codepen.io/7558/orange-portrait_${number}.jpg`
+          );
+
+        }
+
+        this.imageData = [
+
+          {
+            number: "01",
+            title: "Begin Before You're Ready",
+            description:
+              "The work starts when you notice the quiet pull. Breathe once, clear the room inside you, and move one pixel forward."
+          },
+
+          {
+            number: "02",
+            title: "Negative Space, Positive Signal",
+            description:
+              "Leave room around the idea. In the silence, the design answers back and shows you what to remove."
+          },
+
+          {
+            number: "03",
+            title: "Friction Is a Teacher",
+            description:
+              "When the line resists, listen. Constraints are coordinates—plot them, then chart a cleaner route."
+          },
+
+          {
+            number: "04",
+            title: "Golden Minute",
+            description:
+              "Catch the light while it's honest. One honest frame beats a hundred almosts."
+          },
+
+          {
+            number: "05",
+            title: "Shadow Carries Form",
+            description:
+              "The dark reveals the edge. Let contrast articulate what you mean but can't yet say."
+          },
+
+          {
+            number: "06",
+            title: "City Breath",
+            description:
+              "Steel, glass, heartbeat. Edit until the street's rhythm fits inside a single grid."
+          },
+
+          {
+            number: "07",
+            title: "Soft Focus, Sharp Intent",
+            description:
+              "Blur the noise, not the purpose. What matters remains in crisp relief."
+          },
+
+          {
+            number: "08",
+            title: "Time-Tested, Future-Ready",
+            description:
+              "Classics survive because they serve. Keep the spine, tune the surface, respect the lineage."
+          },
+
+          {
+            number: "09",
+            title: "Grace Under Revision",
+            description:
+              "Drafts don't apologize. They evolve. Let elegance emerge through cuts, not flourishes."
+          },
+
+          {
+            number: "10",
+            title: "Style That Outlasts Seasons",
+            description:
+              "Trends talk. Principles walk. Build on principles and let trends accessorize."
+          },
+
+          {
+            number: "11",
+            title: "Edges and Experiments",
+            description:
+              "Push just past comfort. Leave a fingerprint the algorithm can't fake."
+          },
+
+          {
+            number: "12",
+            title: "Portrait of Attention",
+            description:
+              "Form is what you see. Presence is what you feel. Aim for presence."
+          },
+
+          {
+            number: "13",
+            title: "Light Speaks First",
+            description:
+              "Expose for truth. Shadows are sentences, highlights the punctuation."
+          },
+
+          {
+            number: "14",
+            title: "Contemporary Is a Moving Target",
+            description:
+              "Design for now by listening deeper than now. The signal is older than the feed."
+          },
+
+          {
+            number: "15",
+            title: "Vision, Then Precision",
+            description:
+              "Dream wide, ship tight. Let imagination roam and execution walk in single-point focus."
+          },
+
+          {
+            number: "16",
+            title: "Geometry of Poise",
+            description:
+              "Angles carry attitude. Align posture, light, and line until the frame breathes."
+          },
+
+          {
+            number: "17",
+            title: "Natural Light, Natural Truth",
+            description:
+              "Open the window and remove the mask. Authenticity needs less wattage, more honesty."
+          },
+
+          {
+            number: "18",
+            title: "Studio: The Controlled Wild",
+            description:
+              "Dial every knob, then listen for the unscripted moment. Keep the lens ready."
+          },
+
+          {
+            number: "19",
+            title: "Invent the Angle",
+            description:
+              "Rotate the problem ninety degrees. Fresh perspective isn't luck—it's a habit."
+          },
+
+          {
+            number: "20",
+            title: "Editorial Nerve",
+            description:
+              "Carry yourself like you belong, then earn it with craft. The camera can tell."
+          },
+
+          {
+            number: "21",
+            title: "Profession Is Practice",
+            description:
+              "Repeat the fundamentals until they disappear. Mastery is subtle on purpose."
+          },
+
+          {
+            number: "22",
+            title: "Final Frame, Open Door",
+            description:
+              "Endings are launchpads. Archive the take, thank the light, and start again at one."
+          }
+
+        ];
+
+      }
+
+      /* =======================================================
+         SOUND
+      ======================================================== */
+
+      initSoundSystem() {
+
+        this.soundSystem = {
+
+          enabled: false,
+
+          sounds: {
+
+            click:
+              new Audio(
+                "https://assets.codepen.io/7558/glitch-fx-001.mp3"
+              ),
+
+            open:
+              new Audio(
+                "https://assets.codepen.io/7558/click-glitch-001.mp3"
+              ),
+
+            close:
+              new Audio(
+                "https://assets.codepen.io/7558/click-glitch-001.mp3"
+              ),
+
+            "zoom-in":
+              new Audio(
+                "https://assets.codepen.io/7558/whoosh-fx-001.mp3"
+              ),
+
+            "zoom-out":
+              new Audio(
+                "https://assets.codepen.io/7558/whoosh-fx-001.mp3"
+              ),
+
+            "drag-start":
+              new Audio(
+                "https://assets.codepen.io/7558/preloader-2s-001.mp3"
+              ),
+
+            "drag-end":
+              new Audio(
+                "https://assets.codepen.io/7558/preloader-2s-001.mp3"
+              )
+
+          },
+
+          play: (name) => {
+
+            if (
+              !this.soundSystem.enabled
+            ) {
+              return;
+            }
+
+            const audio =
+              this.soundSystem.sounds[name];
+
+            if (!audio) return;
+
+            try {
+
+              audio.pause();
+
+              audio.currentTime = 0;
+
+              const promise =
+                audio.play();
+
+              if (
+                promise &&
+                typeof promise.catch ===
+                  "function"
+              ) {
+
+                promise.catch(() => {});
+
+              }
+
+            } catch (error) {}
+
+          },
+
+          toggle: () => {
+
+            this.soundSystem.enabled =
+              !this.soundSystem.enabled;
+
+            this.soundToggle.classList.toggle(
+              "active",
+              this.soundSystem.enabled
+            );
+
+            this.soundToggle.setAttribute(
+              "aria-pressed",
+              String(
+                this.soundSystem.enabled
+              )
+            );
+
+            if (
+              this.soundSystem.enabled
+            ) {
+
+              this.soundSystem.play(
+                "click"
+              );
+
+            }
+
+          }
+
+        };
+
+        Object.values(
+          this.soundSystem.sounds
+        ).forEach((audio) => {
+
+          audio.preload = "auto";
+
+          audio.volume = 0.22;
+
+        });
+
+        this.initSoundWave();
+
+      }
+
+      initSoundWave() {
+
+        const canvas =
+          document.getElementById(
+            "soundWaveCanvas"
+          );
+
+        if (!canvas) return;
+
+        const ctx =
+          canvas.getContext("2d");
+
+        const width = 32;
+        const height = 16;
+
+        let amplitude = 0;
+
+        const animate = () => {
+
+          const target =
+            this.soundSystem.enabled
+              ? 1
+              : 0;
+
+          amplitude +=
+            (target - amplitude) *
+            0.08;
+
+          ctx.clearRect(
+            0,
+            0,
+            width,
+            height
+          );
+
+          if (amplitude < 0.01) {
+
+            ctx.fillStyle = "#D9C4AA";
+
+            ctx.fillRect(
+              0,
+              7,
+              width,
+              2
+            );
+
+          } else {
+
+            const time =
+              performance.now() *
+              0.005;
+
+            for (
+              let i = 0;
+              i < width;
+              i++
+            ) {
+
+              const x =
+                i - width / 2;
+
+              const envelope =
+                Math.exp(
+                  (-x * x) / 70
+                );
+
+              const y =
+                8 +
+                Math.cos(
+                  x * 0.38 -
+                  time
+                ) *
+                  envelope *
+                  5 *
+                  amplitude;
+
+              ctx.fillStyle =
+                i % 3 === 0
+                  ? "#A64B23"
+                  : "#2C1B14";
+
+              ctx.fillRect(
+                i,
+                Math.round(y),
+                1,
+                2
+              );
+
+            }
+
+          }
+
+          requestAnimationFrame(
+            animate
+          );
+
+        };
+
+        animate();
+
+      }
+
+      /* =======================================================
+         GRID
+      ======================================================== */
+
+      calculateGapForZoom(
+        zoom
+      ) {
+
+        if (zoom >= 1) {
+          return 16;
+        }
+
+        if (zoom >= 0.6) {
+          return 32;
+        }
+
+        return 64;
+
+      }
+
+      calculateGridDimensions(
+        gap = this.config.currentGap
+      ) {
+
+        const width =
+          this.config.cols *
+            (this.config.itemSize + gap) -
+          gap;
+
+        const height =
+          this.config.rows *
+            (this.config.itemSize + gap) -
+          gap;
+
+        this.gridDimensions = {
+
+          width,
+
+          height,
+
+          scaledWidth:
+            width *
+            this.config.currentZoom,
+
+          scaledHeight:
+            height *
+            this.config.currentZoom,
+
+          gap
+
+        };
+
+        return this.gridDimensions;
+
+      }
+
+      generateGridItems() {
+
+        const gap =
+          this.calculateGapForZoom(
+            this.config.currentZoom
+          );
+
+        this.config.currentGap = gap;
+
+        this.calculateGridDimensions(
+          gap
+        );
+
+        this.canvasWrapper.style.width =
+          `${this.gridDimensions.width}px`;
+
+        this.canvasWrapper.style.height =
+          `${this.gridDimensions.height}px`;
+
+        this.gridContainer.innerHTML =
+          "";
+
+        this.gridItems = [];
+
+        let imageIndex = 0;
+
+        for (
+          let row = 0;
+          row < this.config.rows;
+          row++
+        ) {
+
+          for (
+            let col = 0;
+            col < this.config.cols;
+            col++
+          ) {
+
+            const item =
+              document.createElement(
+                "div"
+              );
+
+            item.className =
+              "grid-item";
+
+            const x =
+              col *
+              (
+                this.config.itemSize +
+                gap
+              );
+
+            const y =
+              row *
+              (
+                this.config.itemSize +
+                gap
+              );
+
+            item.style.left =
+              `${x}px`;
+
+            item.style.top =
+              `${y}px`;
+
+            item.style.opacity = "0";
+
+            const imageUrl =
+              this.fashionImages[
+                imageIndex %
+                  this.fashionImages.length
+              ];
+
+            const img =
+              document.createElement(
+                "img"
+              );
+
+            img.alt =
+              `Fashion Portrait ${
+                imageIndex + 1
+              }`;
+
+            img.loading =
+              imageIndex < 20
+                ? "eager"
+                : "lazy";
+
+            img.decoding =
+              "async";
+
+            img.draggable = false;
+
+            img.src =
+              imageUrl;
+
+            img.addEventListener(
+              "error",
+              () => {
+
+                item.classList.add(
+                  "image-error"
+                );
+
+                img.style.display =
+                  "none";
+
+              },
+              {
+                once: true
+              }
+            );
+
+            item.appendChild(img);
+
+            const itemData = {
+
+              element: item,
+
+              img,
+
+              row,
+
+              col,
+
+              baseX: x,
+
+              baseY: y,
+
+              imageUrl,
+
+              index:
+                this.gridItems.length
+
+            };
+
+            item.addEventListener(
+              "click",
+              (event) => {
+
+                event.preventDefault();
+
+                if (
+                  this.zoomState.isActive
+                ) {
+                  return;
+                }
+
+                if (
+                  this.draggable &&
+                  Math.abs(
+                    this.draggable.getVelocity
+                      ? this.draggable.getVelocity(
+                          "x"
+                        )
+                      : 0
+                  ) > 20
+                ) {
+                  return;
+                }
+
+                this.soundSystem.play(
+                  "click"
+                );
+
+                this.enterZoomMode(
+                  itemData
+                );
+
+              }
+            );
+
+            this.gridContainer.appendChild(
+              item
+            );
+
+            this.gridItems.push(
+              itemData
+            );
+
+            imageIndex++;
+
+          }
+
+        }
+
+      }
+
+      /* =======================================================
+         INTRO
+      ======================================================== */
+
+      playIntroAnimation() {
+
+        const vw =
+          window.innerWidth;
+
+        const vh =
+          window.innerHeight;
+
+        const scale =
+          this.config.currentZoom;
+
+        const centerX =
+          vw / 2 -
+          (
+            this.config.itemSize *
+            scale
+          ) /
+            2;
+
+        const centerY =
+          vh / 2 -
+          (
+            this.config.itemSize *
+            scale
+          ) /
+            2;
+
+        this.gridItems.forEach(
+          (itemData, index) => {
+
+            gsap.set(
+              itemData.element,
+              {
+
+                left:
+                  centerX /
+                    scale,
+
+                top:
+                  centerY /
+                    scale,
+
+                scale: 0.82,
+
+                opacity: 0,
+
+                zIndex:
+                  this.gridItems.length -
+                  index
+
+              }
+            );
+
+          }
+        );
+
+        gsap.to(
+          this.gridItems.map(
+            (item) =>
+              item.element
+          ),
+          {
+
+            duration: 0.45,
+
+            left: (index) =>
+              this.gridItems[
+                index
+              ].baseX,
+
+            top: (index) =>
+              this.gridItems[
+                index
+              ].baseY,
+
+            scale: 1,
+
+            opacity: 1,
+
+            ease: "power3.out",
+
+            stagger: {
+
+              amount: 1.5,
+
+              from: "center",
+
+              grid: [
+                this.config.rows,
+                this.config.cols
+              ]
+
+            },
+
+            onComplete: () => {
+
+              this.gridItems.forEach(
+                (item) => {
+
+                  gsap.set(
+                    item.element,
+                    {
+                      zIndex: 1
+                    }
+                  );
+
+                }
+              );
+
+              this.showControls();
+
+            }
+
+          }
+        );
+
+      }
+
+      /* =======================================================
+         CONTROLS INTRO
+      ======================================================== */
+
+      showControls() {
+
+        const percentage =
+          this.percentageIndicator;
+
+        const switchElement =
+          document.querySelector(
+            ".switch"
+          );
+
+        const sound =
+          this.soundToggle;
+
+        gsap.set(
+          this.controlsContainer,
+          {
+            opacity: 0
+          }
+        );
+
+        gsap.set(
+          percentage,
+          {
+            x: -30
+          }
+        );
+
+        gsap.set(
+          switchElement,
+          {
+            y: 25
+          }
+        );
+
+        gsap.set(
+          sound,
+          {
+            x: 30
+          }
+        );
+
+        const timeline =
+          gsap.timeline();
+
+        timeline.to(
+          this.controlsContainer,
+          {
+            opacity: 1,
+            duration: 0.4,
+            ease: "power2.out"
+          }
+        );
+
+        timeline.to(
+          percentage,
+          {
+            x: 0,
+            duration: 0.25,
+            ease: "power2.out"
+          },
+          0.15
+        );
+
+        timeline.to(
+          switchElement,
+          {
+            y: 0,
+            duration: 0.3,
+            ease: "power2.out"
+          },
+          0.2
+        );
+
+        timeline.to(
+          sound,
+          {
+            x: 0,
+            duration: 0.25,
+            ease: "power2.out"
+          },
+          0.25
+        );
+
+        this.controlsContainer.classList.add(
+          "visible"
+        );
+
+      }
+
+      /* =======================================================
+         TITLE
+      ======================================================== */
+
+      splitTextIntoLines(
+        element,
+        text
+      ) {
+
+        element.innerHTML =
+          "";
+
+        const width =
+          Math.max(
+            200,
+            element.clientWidth
+          );
+
+        const measure =
+          document.createElement(
+            "div"
+          );
+
+        const computed =
+          getComputedStyle(
+            element
+          );
+
+        measure.style.cssText = `
+          position:absolute;
+          visibility:hidden;
+          pointer-events:none;
+          width:${width}px;
+          font-family:${computed.fontFamily};
+          font-size:${computed.fontSize};
+          font-weight:${computed.fontWeight};
+          line-height:${computed.lineHeight};
+          letter-spacing:${computed.letterSpacing};
+          white-space:normal;
+        `;
+
+        document.body.appendChild(
+          measure
+        );
+
+        const words =
+          text.split(/\s+/);
+
+        const lines = [];
+
+        let current = "";
+
+        words.forEach(
+          (word) => {
+
+            const test =
+              current
+                ? `${current} ${word}`
+                : word;
+
+            measure.textContent =
+              test;
+
+            if (
+              measure.offsetHeight >
+                parseFloat(
+                  computed.lineHeight
+                ) &&
+              current
+            ) {
+
+              lines.push(
+                current
+              );
+
+              current = word;
+
+            } else {
+
+              current = test;
+
+            }
+
+          }
+        );
+
+        if (current) {
+          lines.push(current);
+        }
+
+        document.body.removeChild(
+          measure
+        );
+
+        lines.forEach(
+          (line) => {
+
+            const span =
+              document.createElement(
+                "span"
+              );
+
+            span.className =
+              "description-line";
+
+            span.textContent =
+              line;
+
+            element.appendChild(
+              span
+            );
+
+          }
+        );
+
+        return element.querySelectorAll(
+          ".description-line"
+        );
+
+      }
+
+      updateTitleOverlay(
+        imageIndex
+      ) {
+
+        const data =
+          this.imageData[
+            imageIndex %
+              this.imageData.length
+          ];
+
+        const number =
+          document.querySelector(
+            "#imageSlideNumber span"
+          );
+
+        const title =
+          document.querySelector(
+            "#imageSlideTitle h1"
+          );
+
+        if (
+          !number ||
+          !title
+        ) {
+          return;
+        }
+
+        number.textContent =
+          data.number;
+
+        title.textContent =
+          data.title;
+
+        this.descriptionLines =
+          this.splitTextIntoLines(
+            this.descriptionContainer,
+            data.description
+          );
+
+      }
+
+      /* =======================================================
+         SCALING OVERLAY
+      ======================================================== */
+
+      createScalingOverlay(
+        sourceImg
+      ) {
+
+        const overlay =
+          document.createElement(
+            "div"
+          );
+
+        overlay.className =
+          "scaling-image-overlay";
+
+        const image =
+          document.createElement(
+            "img"
+          );
+
+        image.src =
+          sourceImg.currentSrc ||
+          sourceImg.src;
+
+        image.alt =
+          sourceImg.alt;
+
+        overlay.appendChild(
+          image
+        );
+
+        document.body.appendChild(
+          overlay
+        );
+
+        const rect =
+          sourceImg.getBoundingClientRect();
+
+        gsap.set(
+          overlay,
+          {
+
+            left: rect.left,
+
+            top: rect.top,
+
+            width: rect.width,
+
+            height: rect.height,
+
+            opacity: 1
+
+          }
+        );
+
+        return overlay;
+
+      }
+
+      /* =======================================================
+         ENTER ZOOM
+      ======================================================== */
+
+      enterZoomMode(
+        selectedItem
+      ) {
+
+        if (
+          this.zoomState.isActive
+        ) {
+          return;
+        }
+
+        if (
+          typeof Flip === "undefined"
+        ) {
+
+          console.warn(
+            "GSAP Flip plugin is required."
+          );
+
+          return;
+
+        }
+
+        this.zoomState.isActive =
+          true;
+
+        this.zoomState.selectedItem =
+          selectedItem;
+
+        document.body.classList.add(
+          "zoom-mode"
+        );
+
+        if (this.draggable) {
+          this.draggable.disable();
+        }
+
+        this.soundSystem.play(
+          "open"
+        );
+
+        const split =
+          this.splitScreenContainer;
+
+        split.classList.add(
+          "active"
+        );
+
+        split.setAttribute(
+          "aria-hidden",
+          "false"
+        );
+
+        gsap.to(
+          split,
+          {
+            opacity: 1,
+            duration: 0.7,
+            ease: this.customEase
+          }
+        );
+
+        const overlay =
+          this.createScalingOverlay(
+            selectedItem.img
+          );
+
+        this.zoomState.scalingOverlay =
+          overlay;
+
+        gsap.set(
+          selectedItem.img,
+          {
+            opacity: 0
+          }
+        );
+
+        this.zoomState.animation =
+          Flip.fit(
+            overlay,
+            this.zoomTarget,
+            {
+
+              duration: 1.05,
+
+              ease:
+                this.customEase,
+
+              absolute: true,
+
+              onComplete: () => {
+
+                this.updateTitleOverlay(
+                  selectedItem.index
+                );
+
+                this.animateTitleIn();
+
+              }
+
+            }
+          );
+
+        this.animateCloseButtonIn();
+
+        this.controlsContainer.classList.add(
+          "split-mode"
+        );
+
+      }
+
+      /* =======================================================
+         TITLE IN
+      ======================================================== */
+
+      animateTitleIn() {
+
+        const overlay =
+          this.imageTitleOverlay;
+
+        const number =
+          document.querySelector(
+            "#imageSlideNumber span"
+          );
+
+        const title =
+          document.querySelector(
+            "#imageSlideTitle h1"
+          );
+
+        gsap.set(
+          number,
+          {
+            y: 20,
+            opacity: 0
+          }
+        );
+
+        gsap.set(
+          title,
+          {
+            y: 55,
+            opacity: 0
+          }
+        );
+
+        gsap.set(
+          this.descriptionLines,
+          {
+            y: 50,
+            opacity: 0
+          }
+        );
+
+        gsap.to(
+          overlay,
+          {
+            opacity: 1,
+            duration: 0.25,
+            ease: "power2.out"
+          }
+        );
+
+        gsap.to(
+          number,
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.65,
+            ease: this.customEase,
+            delay: 0.08
+          }
+        );
+
+        gsap.to(
+          title,
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.7,
+            ease: this.customEase,
+            delay: 0.12
+          }
+        );
+
+        gsap.to(
+          this.descriptionLines,
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.65,
+            ease: this.customEase,
+            stagger: 0.08,
+            delay: 0.17
+          }
+        );
+
+      }
+
+      /* =======================================================
+         CLOSE BUTTON
+      ======================================================== */
+
+      animateCloseButtonIn() {
+
+        this.closeButton.classList.add(
+          "active"
+        );
+
+        gsap.fromTo(
+          this.closeButton,
+          {
+            x: 40,
+            opacity: 0
+          },
+          {
+            x: 0,
+            opacity: 1,
+            duration: 0.5,
+            ease: "power2.out",
+            delay: 0.65
+          }
+        );
+
+      }
+
+      /* =======================================================
+         EXIT ZOOM
+      ======================================================== */
+
+      exitZoomMode() {
+
+        if (
+          !this.zoomState.isActive ||
+          !this.zoomState.selectedItem ||
+          !this.zoomState.scalingOverlay
+        ) {
+          return;
+        }
+
+        this.soundSystem.play(
+          "close"
+        );
+
+        const selected =
+          this.zoomState.selectedItem;
+
+        const selectedElement =
+          selected.element;
+
+        const selectedImg =
+          selected.img;
+
+        const scalingOverlay =
+          this.zoomState.scalingOverlay;
+
+        if (
+          this.zoomState.animation &&
+          this.zoomState.animation.kill
+        ) {
+
+          this.zoomState.animation.kill();
+
+        }
+
+        const titleOverlay =
+          this.imageTitleOverlay;
+
+        gsap.to(
+          titleOverlay,
+          {
+            opacity: 0,
+            duration: 0.2,
+            ease: "power2.out"
+          }
+        );
+
+        gsap.to(
+          this.closeButton,
+          {
+            x: 40,
+            opacity: 0,
+            duration: 0.25,
+            ease: "power2.in"
+          }
+        );
+
+        gsap.to(
+          this.descriptionLines,
+          {
+            y: -40,
+            opacity: 0,
+            duration: 0.3,
+            stagger: 0.03,
+            ease: "power2.in"
+          }
+        );
+
+        gsap.to(
+          this.splitScreenContainer,
+          {
+            opacity: 0,
+            duration: 0.55,
+            ease: "power2.out"
+          }
+        );
+
+        Flip.fit(
+          scalingOverlay,
+          selectedElement,
+          {
+
+            duration: 0.8,
+
+            ease:
+              this.customEase,
+
+            absolute: true,
+
+            onComplete: () => {
+
+              gsap.set(
+                selectedImg,
+                {
+                  opacity: 1
+                }
+              );
+
+              if (
+                scalingOverlay.parentNode
+              ) {
+
+                scalingOverlay.parentNode.removeChild(
+                  scalingOverlay
+                );
+
+              }
+
+              this.splitScreenContainer.classList.remove(
+                "active"
+              );
+
+              this.splitScreenContainer.setAttribute(
+                "aria-hidden",
+                "true"
+              );
+
+              this.controlsContainer.classList.remove(
+                "split-mode"
+              );
+
+              this.closeButton.classList.remove(
+                "active"
+              );
+
+              document.body.classList.remove(
+                "zoom-mode"
+              );
+
+              this.zoomState = {
+
+                isActive: false,
+
+                selectedItem: null,
+
+                scalingOverlay: null,
+
+                animation: null
+
+              };
+
+              if (
+                this.draggable
+              ) {
+
+                this.draggable.enable();
+
+              }
+
+            }
+
+          }
+        );
+
+      }
+
+      /* =======================================================
+         DRAG
+      ======================================================== */
+
+      calculateBounds() {
+
+        const vw =
+          window.innerWidth;
+
+        const vh =
+          window.innerHeight;
+
+        const {
+          scaledWidth,
+          scaledHeight
+        } =
+          this.gridDimensions;
+
+        const margin =
+          this.config.currentGap *
+          this.config.currentZoom;
+
+        let minX;
+        let maxX;
+        let minY;
+        let maxY;
+
+        if (
+          scaledWidth <= vw
+        ) {
+
+          const centerX =
+            (vw - scaledWidth) /
+            2;
+
+          minX = centerX;
+          maxX = centerX;
+
+        } else {
+
+          maxX = margin;
+
+          minX =
+            vw -
+            scaledWidth -
+            margin;
+
+        }
+
+        if (
+          scaledHeight <= vh
+        ) {
+
+          const centerY =
+            (vh - scaledHeight) /
+            2;
+
+          minY = centerY;
+          maxY = centerY;
+
+        } else {
+
+          maxY = margin;
+
+          minY =
+            vh -
+            scaledHeight -
+            margin;
+
+        }
+
+        return {
+
+          minX,
+          maxX,
+          minY,
+          maxY
+
+        };
+
+      }
+
+      initDraggable() {
+
+        if (
+          typeof Draggable ===
+          "undefined"
+        ) {
+          return;
+        }
+
+        if (this.draggable) {
+
+          try {
+            this.draggable.kill();
+          } catch (error) {}
+
+          this.draggable =
+            null;
+
+        }
+
+        this.calculateGridDimensions(
+          this.config.currentGap
+        );
+
+        const bounds =
+          this.calculateBounds();
+
+        const config = {
+
+          type: "x,y",
+
+          bounds,
+
+          edgeResistance: 0.82,
+
+          allowContextMenu: true,
+
+          minimumMovement: 3,
+
+          onPress: () => {
+
+            if (
+              this.zoomState.isActive
+            ) {
+              return;
+            }
+
+          },
+
+          onDragStart: () => {
+
+            document.body.classList.add(
+              "dragging"
+            );
+
+            this.lastValidPosition.x =
+              this.draggable.x;
+
+            this.lastValidPosition.y =
+              this.draggable.y;
+
+            this.soundSystem.play(
+              "drag-start"
+            );
+
+          },
+
+          onDrag: () => {
+
+            this.lastValidPosition.x =
+              this.draggable.x;
+
+            this.lastValidPosition.y =
+              this.draggable.y;
+
+          },
+
+          onDragEnd: () => {
+
+            document.body.classList.remove(
+              "dragging"
+            );
+
+            this.soundSystem.play(
+              "drag-end"
+            );
+
+          }
+
+        };
+
+        if (
+          typeof InertiaPlugin !==
+          "undefined"
+        ) {
+
+          config.inertia = true;
+
+        }
+
+        this.draggable =
+          Draggable.create(
+            this.canvasWrapper,
+            config
+          )[0];
+
+      }
+
+      /* =======================================================
+         FIT ZOOM
+      ======================================================== */
+
+      calculateFitZoom() {
+
+        const vw =
+          window.innerWidth;
+
+        const vh =
+          window.innerHeight;
+
+        const gap =
+          this.calculateGapForZoom(
+            1
+          );
+
+        const gridWidth =
+          this.config.cols *
+            (
+              this.config.itemSize +
+              gap
+            ) -
+          gap;
+
+        const gridHeight =
+          this.config.rows *
+            (
+              this.config.itemSize +
+              gap
+            ) -
+          gap;
+
+        const margin =
+          Math.min(
+            70,
+            Math.max(
+              20,
+              vw * 0.04
+            )
+          );
+
+        const availableWidth =
+          Math.max(
+            100,
+            vw - margin * 2
+          );
+
+        const availableHeight =
+          Math.max(
+            100,
+            vh - margin * 2
+          );
+
+        const zoomWidth =
+          availableWidth /
+          gridWidth;
+
+        const zoomHeight =
+          availableHeight /
+          gridHeight;
+
+        return Math.max(
+          0.1,
+          Math.min(
+            2,
+            Math.min(
+              zoomWidth,
+              zoomHeight
+            )
+          )
+        );
+
+      }
+
+      /* =======================================================
+         ZOOM
+      ======================================================== */
+
+      setZoom(
+        zoomLevel,
+        buttonElement = null
+      ) {
+
+        if (
+          this.zoomState.isActive
+        ) {
+
+          this.exitZoomMode();
+
+          return;
+
+        }
+
+        zoomLevel =
+          Math.max(
+            0.1,
+            Math.min(
+              2,
+              zoomLevel
+            )
+          );
+
+        const oldZoom =
+          this.config.currentZoom;
+
+        const newGap =
+          this.calculateGapForZoom(
+            zoomLevel
+          );
+
+        this.soundSystem.play(
+          zoomLevel < oldZoom
+            ? "zoom-out"
+            : "zoom-in"
+        );
+
+        this.config.currentZoom =
+          zoomLevel;
+
+        this.calculateGridDimensions(
+          this.config.currentGap
+        );
+
+        const vw =
+          window.innerWidth;
+
+        const vh =
+          window.innerHeight;
+
+        const oldWidth =
+          this.gridDimensions.width *
+          oldZoom;
+
+        const oldHeight =
+          this.gridDimensions.height *
+          oldZoom;
+
+        const oldCenterX =
+          (vw - oldWidth) /
+          2;
+
+        const oldCenterY =
+          (vh - oldHeight) /
+          2;
+
+        gsap.to(
+          this.canvasWrapper,
+          {
+            duration: 0.45,
+            x: oldCenterX,
+            y: oldCenterY,
+            ease: this.centerEase,
+            overwrite: true,
+
+            onComplete: () => {
+
+              this.applyGridGapAndZoom(
+                newGap,
+                zoomLevel
+              );
+
+            }
+
+          }
+        );
+
+        this.updatePercentageIndicator(
+          zoomLevel
+        );
+
+        this.updateActiveZoomButton(
+          zoomLevel,
+          buttonElement
+        );
+
+      }
+
+      applyGridGapAndZoom(
+        newGap,
+        zoomLevel
+      ) {
+
+        if (
+          newGap !==
+          this.config.currentGap
+        ) {
+
+          this.gridItems.forEach(
+            (itemData) => {
+
+              const x =
+                itemData.col *
+                (
+                  this.config.itemSize +
+                  newGap
+                );
+
+              const y =
+                itemData.row *
+                (
+                  this.config.itemSize +
+                  newGap
+                );
+
+              itemData.baseX = x;
+
+              itemData.baseY = y;
+
+              gsap.to(
+                itemData.element,
+                {
+                  left: x,
+                  top: y,
+                  duration: 0.65,
+                  ease: this.customEase,
+                  overwrite: true
+                }
+              );
+
+            }
+          );
+
+          const width =
+            this.config.cols *
+              (
+                this.config.itemSize +
+                newGap
+              ) -
+            newGap;
+
+          const height =
+            this.config.rows *
+              (
+                this.config.itemSize +
+                newGap
+              ) -
+            newGap;
+
+          gsap.to(
+            this.canvasWrapper,
+            {
+              width,
+              height,
+              duration: 0.65,
+              ease: this.customEase,
+              overwrite: true
+            }
+          );
+
+          this.config.currentGap =
+            newGap;
+
+        }
+
+        this.calculateGridDimensions(
+          newGap
+        );
+
+        const vw =
+          window.innerWidth;
+
+        const vh =
+          window.innerHeight;
+
+        const finalWidth =
+          this.gridDimensions.width *
+          zoomLevel;
+
+        const finalHeight =
+          this.gridDimensions.height *
+          zoomLevel;
+
+        const centerX =
+          (vw - finalWidth) /
+          2;
+
+        const centerY =
+          (vh - finalHeight) /
+          2;
+
+        gsap.to(
+          this.canvasWrapper,
+          {
+
+            duration: 0.8,
+
+            scale: zoomLevel,
+
+            x: centerX,
+
+            y: centerY,
+
+            ease: this.customEase,
+
+            overwrite: true,
+
+            onComplete: () => {
+
+              this.lastValidPosition.x =
+                centerX;
+
+              this.lastValidPosition.y =
+                centerY;
+
+              this.initDraggable();
+
+            }
+
+          }
+        );
+
+      }
+
+      autoFitZoom(
+        buttonElement = null
+      ) {
+
+        if (
+          this.zoomState.isActive
+        ) {
+
+          this.exitZoomMode();
+
+          return;
+
+        }
+
+        const fit =
+          this.calculateFitZoom();
+
+        const old =
+          this.config.currentZoom;
+
+        this.soundSystem.play(
+          fit < old
+            ? "zoom-out"
+            : "zoom-in"
+        );
+
+        this.config.currentZoom =
+          fit;
+
+        const gap =
+          this.calculateGapForZoom(
+            fit
+          );
+
+        this.applyGridGapAndZoom(
+          gap,
+          fit
+        );
+
+        this.updatePercentageIndicator(
+          fit
+        );
+
+        document
+          .querySelectorAll(
+            ".switch-button"
+          )
+          .forEach((button) => {
+
+            button.classList.remove(
+              "switch-button-current"
+            );
+
+          });
+
+        if (buttonElement) {
+
+          buttonElement.classList.add(
+            "switch-button-current"
+          );
+
+        } else {
+
+          const fitButton =
+            document.querySelector(
+              "[data-fit='true']"
+            );
+
+          if (fitButton) {
+
+            fitButton.classList.add(
+              "switch-button-current"
+            );
+
+          }
+
+        }
+
+      }
+
+      updateActiveZoomButton(
+        zoom,
+        selectedButton
+      ) {
+
+        document
+          .querySelectorAll(
+            ".switch-button"
+          )
+          .forEach((button) => {
+
+            button.classList.remove(
+              "switch-button-current"
+            );
+
+          });
+
+        if (
+          selectedButton
+        ) {
+
+          selectedButton.classList.add(
+            "switch-button-current"
+          );
+
+          return;
+
+        }
+
+        const buttons =
+          document.querySelectorAll(
+            ".switch-button"
+          );
+
+        buttons.forEach(
+          (button) => {
+
+            const value =
+              parseFloat(
+                button.dataset.zoom
+              );
+
+            if (
+              Math.abs(
+                value - zoom
+              ) < 0.001
+            ) {
+
+              button.classList.add(
+                "switch-button-current"
+              );
+
+            }
+
+          }
+        );
+
+      }
+
+      updatePercentageIndicator(
+        zoom
+      ) {
+
+        if (
+          this.percentageIndicator
+        ) {
+
+          this.percentageIndicator.textContent =
+            `${Math.round(
+              zoom * 100
+            )}%`;
+
+        }
+
+      }
+
+      /* =======================================================
+         RESET
+      ======================================================== */
+
+      resetPosition() {
+
+        if (
+          this.zoomState.isActive
+        ) {
+          return;
+        }
+
+        this.calculateGridDimensions(
+          this.config.currentGap
+        );
+
+        const vw =
+          window.innerWidth;
+
+        const vh =
+          window.innerHeight;
+
+        const x =
+          (
+            vw -
+            this.gridDimensions.scaledWidth
+          ) /
+          2;
+
+        const y =
+          (
+            vh -
+            this.gridDimensions.scaledHeight
+          ) /
+          2;
+
+        gsap.to(
+          this.canvasWrapper,
+          {
+
+            x,
+            y,
+
+            duration: 0.7,
+
+            ease: this.centerEase,
+
+            overwrite: true,
+
+            onComplete: () => {
+
+              this.lastValidPosition.x =
+                x;
+
+              this.lastValidPosition.y =
+                y;
+
+              this.initDraggable();
+
+            }
+
+          }
+        );
+
+      }
+
+      /* =======================================================
+         EVENTS
+      ======================================================== */
+
+      setupEventListeners() {
+
+        /* Zoom buttons */
+
+        document
+          .querySelectorAll(
+            ".switch-button"
+          )
+          .forEach((button) => {
+
+            button.addEventListener(
+              "click",
+              () => {
+
+                if (
+                  button.dataset.fit ===
+                  "true"
+                ) {
+
+                  this.autoFitZoom(
+                    button
+                  );
+
+                  return;
+
+                }
+
+                const zoom =
+                  parseFloat(
+                    button.dataset.zoom
+                  );
+
+                this.setZoom(
+                  zoom,
+                  button
+                );
+
+              }
+            );
+
+          });
+
+        /* Close */
+
+        this.closeButton.addEventListener(
+          "click",
+          () => {
+
+            this.exitZoomMode();
+
+          }
+        );
+
+        /* Sound */
+
+        this.soundToggle.addEventListener(
+          "click",
+          () => {
+
+            this.soundSystem.toggle();
+
+          }
+        );
+
+        /* Logo */
+
+        const logo =
+          document.getElementById(
+            "logo"
+          );
+
+        if (logo) {
+
+          logo.addEventListener(
+            "click",
+            () => {
+
+              this.resetPosition();
+
+            }
+          );
+
+          logo.addEventListener(
+            "keydown",
+            (event) => {
+
+              if (
+                event.key ===
+                  "Enter" ||
+                event.key ===
+                  " "
+              ) {
+
+                event.preventDefault();
+
+                this.resetPosition();
+
+              }
+
+            }
+          );
+
+        }
+
+        /* Escape */
+
+        document.addEventListener(
+          "keydown",
+          (event) => {
+
+            if (
+              event.key ===
+              "Escape"
+            ) {
+
+              if (
+                this.zoomState.isActive
+              ) {
+
+                this.exitZoomMode();
+
+              }
+
+              return;
+
+            }
+
+            if (
+              this.zoomState.isActive
+            ) {
+
+              return;
+
+            }
+
+            switch (
+              event.key
+            ) {
+
+              case "1":
+
+                this.setZoom(
+                  0.3
+                );
+
+                break;
+
+              case "2":
+
+                this.setZoom(
+                  0.6
+                );
+
+                break;
+
+              case "3":
+
+                this.setZoom(
+                  1
+                );
+
+                break;
+
+              case "f":
+              case "F":
+
+                this.autoFitZoom();
+
+                break;
+
+            }
+
+          }
+        );
+
+        /* Split background click */
+
+        const splitLeft =
+          document.getElementById(
+            "splitLeft"
+          );
+
+        const splitRight =
+          document.getElementById(
+            "splitRight"
+          );
+
+        splitLeft.addEventListener(
+          "click",
+          (event) => {
+
+            if (
+              event.target ===
+              splitLeft
+            ) {
+
+              this.exitZoomMode();
+
+            }
+
+          }
+        );
+
+        splitRight.addEventListener(
+          "click",
+          (event) => {
+
+            if (
+              event.target ===
+              splitRight
+            ) {
+
+              this.exitZoomMode();
+
+            }
+
+          }
+        );
+
+        /* Resize */
+
+        window.addEventListener(
+          "resize",
+          () => {
+
+            clearTimeout(
+              this.resizeTimer
+            );
+
+            this.resizeTimer =
+              setTimeout(
+                () => {
+
+                  this.handleResize();
+
+                },
+                150
+              );
+
+          },
+          {
+            passive: true
+          }
+        );
+
+        /* Orientation */
+
+        window.addEventListener(
+          "orientationchange",
+          () => {
+
+            setTimeout(
+              () => {
+
+                this.handleResize();
+
+              },
+              300
+            );
+
+          },
+          {
+            passive: true
+          }
+        );
+
+      }
+
+      handleResize() {
+
+        if (
+          this.zoomState.isActive
+        ) {
+          return;
+        }
+
+        this.calculateGridDimensions(
+          this.config.currentGap
+        );
+
+        this.resetPosition();
+
+      }
+
+      /* =======================================================
+         INIT
+      ======================================================== */
+
+      init() {
+
+        if (
+          this.isInitialized
+        ) {
+          return;
+        }
+
+        this.isInitialized =
+          true;
+
+        /* Sync mobile item size */
+
+        const width =
+          window.innerWidth;
+
+        if (
+          width <= 480
+        ) {
+
+          this.config.itemSize =
+            180;
+
+        } else if (
+          width <= 768
+        ) {
+
+          this.config.itemSize =
+            220;
+
+        } else if (
+          width <= 1100
+        ) {
+
+          this.config.itemSize =
+            280;
+
+        } else {
+
+          this.config.itemSize =
+            320;
+
+        }
+
+        document.documentElement.style.setProperty(
+          "--item-size",
+          `${this.config.itemSize}px`
+        );
+
+        this.generateGridItems();
+
+        gsap.set(
+          this.viewport,
+          {
+            opacity: 0
+          }
+        );
+
+        gsap.set(
+          this.canvasWrapper,
+          {
+            scale:
+              this.config.currentZoom
+          }
+        );
+
+        this.calculateGridDimensions(
+          this.config.currentGap
+        );
+
+        const vw =
+          window.innerWidth;
+
+        const vh =
+          window.innerHeight;
+
+        const x =
+          (
+            vw -
+            this.gridDimensions.scaledWidth
+          ) /
+          2;
+
+        const y =
+          (
+            vh -
+            this.gridDimensions.scaledHeight
+          ) /
+          2;
+
+        gsap.set(
+          this.canvasWrapper,
+          {
+            x,
+            y
+          }
+        );
+
+        this.lastValidPosition.x =
+          x;
+
+        this.lastValidPosition.y =
+          y;
+
+        this.updatePercentageIndicator(
+          this.config.currentZoom
+        );
+
+        this.setupEventListeners();
+
+        gsap.to(
+          this.viewport,
+          {
+
+            opacity: 1,
+
+            duration: 0.55,
+
+            ease: "power2.inOut",
+
+            onComplete: () => {
+
+              this.playIntroAnimation();
+
+              gsap.to(
+                ".header",
+                {
+                  opacity: 1,
+                  duration: 0.9,
+                  ease: "power2.out",
+                  delay: 0.5
+                }
+              );
+
+              gsap.to(
+                ".footer",
+                {
+                  opacity: 1,
+                  duration: 1,
+                  ease: "power2.out",
+                  delay: 0.7
+                }
+              );
+
+              setTimeout(
+                () => {
+
+                  this.initDraggable();
+
+                },
+                1200
+              );
+
+            }
+
+          }
+        );
+
+      }
+
+    }
+
+    /* =========================================================
+       BOOT
+    ========================================================== */
+
+    let gallery = null;
+
+    document.addEventListener(
+      "DOMContentLoaded",
+      () => {
+
+        const preloader =
+          new PreloaderManager();
+
+        preloader.complete(
+          () => {
+
+            gallery =
+              new FashionGallery();
+
+            gallery.init();
+
+            window.gallery =
+              gallery;
+
+          }
+        );
+
+      }
+    );
+
+  </script>
+
+</body>
+</html>

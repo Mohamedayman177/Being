@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Hover Motion &amp; Transition Image Grid | Codrops</title>
+		<meta name="description" content="" />
+		<meta name="keywords" content="" />
+		<meta name="author" content="Codrops" />
+		<link rel="shortcut icon" href="favicon.ico">
+		<link rel="stylesheet" href="https://use.typekit.net/ydc6mft.css">
+		<link rel="stylesheet" type="text/css" href="css/base.css" />
+		<style>
+		/* Global black & white theme (retro) - background set to pure black */
+		:root{--bw-bg:#000;--bw-text:#f5f5f5;--bw-muted:#fff}
+		body, html{background:var(--bw-bg);color:var(--bw-text);height:100%;text-align:left;}
+		main, .content, section{background:transparent;text-align:left;}
+		a, a:visited{color:var(--bw-text)}
+		img, .row__item-img{filter:grayscale(100%) contrast(0.95) brightness(0.95);}
+		.content__text p.right{color:var(--bw-muted)}
+		.content__nav a, .content__nav .tags a{color:var(--bw-muted)}
+		.hle-projects .card{background:#0e0e0e}
+		.row__item-img{
+    position: relative;
+    overflow: hidden;
+}
+
+.row__item-img video{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+}
+    .content__nav-brand .logo-mark {
+      width: 100%;
+      height: 30px;
+      object-fit: cover;
+      display: block;
+    }
+    .content__nav-item {
+      color:var(--bw-muted);
+      text-transform:uppercase;
+      letter-spacing:0.16em;
+      font-size:0.78rem;
+      text-decoration:none;
+      transition:color 0.25s ease;
+    }
+    .content__nav-item:hover,
+    .content__nav-item.active {
+      color:var(--bw-text);
+    }
+    .content__panel {
+      max-width:900px;
+      margin:0 auto;
+      padding:0 1.25rem 4rem;
+    }
+    .content__section {
+      display:none;
+      animation:fadeIn 0.35s ease both;
+    }
+    .content__section.active {
+      display:block;
+    }
+    .content__section:not(.active) {
+      display:none !important;
+    }
+    .content__header h2 {
+      margin-bottom:1.35rem;
+      font-size:2.1rem;
+      letter-spacing:0.12em;
+      text-transform:uppercase;
+      text-align:left;
+    }
+    .content__text p {
+      margin-bottom:1.1rem;
+      line-height:1.7;
+      max-width:760px;
+      text-align:left;
+    }
+    .content__footer {
+      display:flex;
+      justify-content:flex-start;
+      flex-wrap:wrap;
+      gap:1rem;
+      margin-top:2.5rem;
+      padding-top:1rem;
+      border-top:1px solid rgba(255,255,255,0.12);
+      color:var(--bw-muted);
+      font-size:0.9rem;
+    }
+    @keyframes fadeIn {
+      from { opacity:0; transform:translateY(6px); }
+      to { opacity:1; transform:translateY(0); }
+    }
+		</style>
+		<script>document.documentElement.className="js";</script>
+		<script src="//tympanus.net/codrops/adpacks/analytics.js"></script>
+	</head>
+	<body class="noscroll loading">
+		<main>
+			<header class="frame hidden">
+				<h1 class="frame__title"><strong>BEING</strong>&reg;</h1>
+			</header>
+			<section class="intro">
+				<div class="grid">
+					<div class="row">
+						<div class="row__item">
+							<div class="row__item-inner">
+								<div class="row__item-img" style="background-image:url(img/1.jpg)"></div>
+							</div>
+						</div>
+						<div class="row__item"><div class="row__item-inner"><div class="row__item-img" style="background-image:url(Being/1.jpeg)"></div></div></div>
+						<div class="row__item"><div class="row__item-inner"><div class="row__item-img" style="background-image:url(Being/2.jpeg)"></div></div></div>
+						<div class="row__item"><div class="row__item-inner"><div class="row__item-img" style="background-image:url(Being/3.jpeg)"></div></div></div>
+						<div class="row__item"><div class="row__item-inner"><div class="row__item-img" style="background-image:url(Being/4.jpeg)"></div></div></div>
+						<div class="row__item"><div class="row__item-inner"><div class="row__item-img" style="background-image:url(Being/5.jpeg)"></div></div></div>
+						<div class="row__item"><div class="row__item-inner"><div class="row__item-img" style="background-image:url(Being/6.jpeg)"></div></div></div>
+					</div>
+					<div class="row">
+						<div class="row__item"><div class="row__item-inner"><div class="row__item-img" style="background-image:url(Being/7.jpeg)"></div></div></div>
+						<div class="row__item"><div class="row__item-inner"><div class="row__item-img" style="background-image:url(Being/8.jpeg)"></div></div></div>
+						<div class="row__item"><div class="row__item-inner"><div class="row__item-img" style="background-image:url(Being/9.jpeg)"></div></div></div>
+						<div class="row__item"><div class="row__item-inner"><div class="row__item-img" style="background-image:url(Being/10.jpeg)"></div></div></div>
+						<div class="row__item"><div class="row__item-inner"><div class="row__item-img" style="background-image:url(Being/11.jpeg)"></div></div></div>
+						<div class="row__item"><div class="row__item-inner"><div class="row__item-img" style="background-image:url(Being/12.jpeg)"></div></div></div>
+						<div class="row__item"><div class="row__item-inner"><div class="row__item-img" style="background-image:url(Being/13.jpeg)"></div></div></div>
+					</div>
+					<div class="row">
+						<div class="row__item"><div class="row__item-inner"><div class="row__item-img" style="background-image:url(Being/14.jpeg)"></div></div></div>
+						<div class="row__item"><div class="row__item-inner"><div class="row__item-img" style="background-image:url(Being/15.jpeg)"></div></div></div>
+						<div class="row__item"><div class="row__item-inner"><div class="row__item-img" style="background-image:url(c9ca4e1643c14ca01029ad618992f57e.jpg)"></div></div></div>
+						<div class="row__item"><div class="row__item-inner"><div class="row__item-img">
+  <video autoplay muted loop playsinline>
+    <source src="Street Thinking.mp4" type="video/mp4">
+  </video>
+</div>		</div></div>
+						<div class="row__item"><div class="row__item-inner"><div class="row__item-img" style="background-image:url(Being/16.jpeg)"></div></div></div>
+						<div class="row__item"><div class="row__item-inner"><div class="row__item-img" style="background-image:url(Being/17.jpg)"></div></div></div>
+						<div class="row__item"><div class="row__item-inner"><div class="row__item-img" style="background-image:url(Being/18.jpg)"></div></div></div>
+					</div>
+					<div class="row">
+						<div class="row__item"><div class="row__item-inner"><div class="row__item-img" style="background-image:url(Being/19.jpg)"></div></div></div>
+						<div class="row__item"><div class="row__item-inner"><div class="row__item-img" style="background-image:url(Being/20.jpg)"></div></div></div>
+						<div class="row__item"><div class="row__item-inner"><div class="row__item-img" style="background-image:url(Being/21.jpg)"></div></div></div>
+						<div class="row__item"><div class="row__item-inner"><div class="row__item-img" style="background-image:url(Being/22.jpg)"></div></div></div>
+						<div class="row__item"><div class="row__item-inner"><div class="row__item-img" style="background-image:url(Being/23.jpg)"></div></div></div>
+						<div class="row__item"><div class="row__item-inner"><div class="row__item-img" style="background-image:url(Being/24.jpg)"></div></div></div>
+						<div class="row__item"><div class="row__item-inner"><div class="row__item-img" style="background-image:url(Being/25.jpg)"></div></div></div>
+					</div>
+					<div class="row">
+						<div class="row__item"><div class="row__item-inner"><div class="row__item-img" style="background-image:url(Being/26.jpg)"></div></div></div>
+						<div class="row__item"><div class="row__item-inner"><div class="row__item-img" style="background-image:url(Being/27.jpg)"></div></div></div>
+						<div class="row__item"><div class="row__item-inner"><div class="row__item-img" style="background-image:url(Being/28.jpg)"></div></div></div>
+						<div class="row__item"><div class="row__item-inner"><div class="row__item-img" style="background-image:url(Being/29.jpg)"></div></div></div>
+						<div class="row__item"><div class="row__item-inner"><div class="row__item-img" style="background-image:url(Being/30.jpg)"></div></div></div>
+						<div class="row__item"><div class="row__item-inner"><div class="row__item-img" style="background-image:url(Being/31.jpg)"></div></div></div>
+						<div class="row__item"><div class="row__item-inner"><div class="row__item-img" style="background-image:url(Being/32.jpg)"></div></div></div>
+					</div>
+				</div>
+				<div class="fullview"></div>
+				<div class="enter"><span>Explore</span></div>
+			</section>
+
+
+			<section class="content">
+				<nav class="content__nav" aria-label="Secondary navigation">
+					<div class="content__nav-brand">
+						<img class="logo-mark" src="https://res.cloudinary.com/ngymeeef/image/upload/v1785135159/BEING_qjfypv.webp" alt="BEING logo" />
+					</div>
+					<a class="content__nav-item active" href="javascript:void(0)" data-target="Home">Home</a>
+					<a class="content__nav-item " href="javascript:void(0)" data-target="about">About Us</a>
+					<a class="content__nav-item" href="Portfolio.html" data-target="" onclick="window.location.href='Portfolio.html'; return true;">Gallery</a>
+					<a class="content__nav-item" href="javascript:void(0)" data-target="contact">Contact Us</a>
+				</nav>
+
+				<div class="content__panel">
+					<section class="content__section home active" data-section="Home">
+
+						<div class="content__header">
+					<h2>BEING</h2>
+				</div>
+				<div class="content__text">
+					<p class="right">At <strong>Nova</strong>Motion&reg;, our team of creative artists and tech experts work together to explore new possibilities. Each project shows our dedication to new ideas and high quality, whether it's a commercial, film, or interactive display.</p>
+					<p class="highlight">We believe motion design can tell stories, evoke emotions, and inspire imaginations.</p>
+					<p>Our clients are at the core of everything we do at <strong>Nova</strong>Motion&reg;. We pride ourselves on building strong, lasting relationships based on trust, communication, and mutual respect. We listen carefully to your needs and goals, ensuring we fully understand your vision. </p>
+					<p>By collaborating closely, we tailor our approach to meet your unique requirements, delivering results that exceed expectations. Whether you are a small business or a large corporation, we are committed to helping you succeed. With <strong>Nova</strong>Motion&reg;, you are not just a client; you are a valued partner in creating exceptional visual stories.</p>
+				</div>
+						
+					</section>
+					
+					<section class="content__section about" data-section="about">
+						<div class="content__header">
+							<h2>About</h2>
+						</div>
+						<div class="content__text">
+							<p class="right">At <strong>Nova</strong>Motion&reg;, our team of creative artists and tech experts work together to explore new possibilities. Each project shows our dedication to new ideas and high quality, whether it's a commercial, film, or interactive display.</p>
+							<p class="highlight">We believe motion design can tell stories, evoke emotions, and inspire imaginations.</p>
+							<p>Our clients are at the core of everything we do at <strong>Nova</strong>Motion&reg;. We pride ourselves on building strong, lasting relationships based on trust, communication, and mutual respect. We listen carefully to your needs and goals, ensuring we fully understand your vision.</p>
+							<p>By collaborating closely, we tailor our approach to meet your unique requirements, delivering results that exceed expectations. Whether you are a small business or a large corporation, we are committed to helping you succeed. With <strong>Nova</strong>Motion&reg;, you are not just a client; you are a valued partner in creating exceptional visual stories.</p>
+						</div>
+					</section>
+
+					<section class="content__section services" data-section="services">
+						<div class="content__header">
+							<h2>Services</h2>
+						</div>
+						<div class="content__text">
+							<p>We design immersive motion experiences for fashion, culture, and digital storytelling.</p>
+							<p>From creative direction and art direction to interactive installations and branded visuals, we turn concepts into unforgettable experiences.</p>
+							<p>Our process blends storytelling, visual language, and technical execution into polished work that feels both cinematic and contemporary.</p>
+						</div>
+					</section>
+
+					<section class="content__section contact" data-section="contact">
+						<div class="content__header">
+							<h2>Contact Us</h2>
+						</div>
+						<div class="content__text">
+							<p>We'd love to hear about your next project.</p>
+							<p>Email: hello@being.studio</p>
+							<p>Instagram: @beingstudio</p>
+							<p>Location: Los Angeles, California</p>
+						</div>
+					</section>
+				</div>
+<!----
+				<footer class="content__footer">
+					<span>Made by <a href="https://www.instagram.com/codropsss/">@codrops</a></span>
+					<a href="https://tympanus.net/codrops/collective/">Subscribe to our frontend news</a>
+				</footer>-->
+			</section>
+		</main>
+		<script src="https://tympanus.net/codrops/adpacks/cda_sponsor.js"></script>
+		<!-- JavaScript dependencies -->
+		<!-- GSAP library -->
+		<script src="js/gsap.min.js"></script>
+		<!-- GSAP Flip plugin -->
+    	<script src="js/Flip.min.js"></script>
+    	 <!-- Add (Lenis) smooth scroll -->
+		<script src="js/lenis.min.js"></script>
+		<script src="js/smoothscroll.js"></script>
+
+		<!-- Image preloader -->
+		<script src="js/imagesloaded.pkgd.min.js"></script>
+
+		<!-- Scripts for the effect -->
+		<script type="module" src="js/index.js"></script>
+		<script>
+			const navItems = document.querySelectorAll('.content__nav-item');
+			const sections = document.querySelectorAll('.content__section');
+
+			sections.forEach((section) => {
+				section.classList.remove('active');
+			});
+			document.querySelector('.content__section.home')?.classList.add('active');
+			document.querySelector('.content__nav-item[data-target="Home"]')?.classList.add('active');
+
+			navItems.forEach((item) => {
+				item.addEventListener('click', (event) => {
+					const target = item.getAttribute('data-target');
+					if (!target) {
+						return;
+					}
+					event.preventDefault();
+
+					sections.forEach((section) => {
+						section.classList.toggle('active', section.getAttribute('data-section') === target);
+					});
+
+					navItems.forEach((navItem) => {
+						navItem.classList.toggle('active', navItem === item);
+					});
+				});
+			});
+		</script>
+	</body>
+</html>
