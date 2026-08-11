@@ -461,7 +461,7 @@
 
       opacity: 0;
 
-      touch-action: none;
+      touch-action: manipulation;
 
       contain: layout paint size;
     }
@@ -499,6 +499,8 @@
       height: var(--item-size);
 
       overflow: hidden;
+
+      touch-action: manipulation;
 
       background: #090909;
 
@@ -2708,39 +2710,57 @@
 
             };
 
+            const activateItem = (event) => {
+              event.preventDefault();
+
+              if (
+                this.zoomState.isActive
+              ) {
+                return;
+              }
+
+              if (
+                this.draggable &&
+                Math.abs(
+                  this.draggable.getVelocity
+                    ? this.draggable.getVelocity(
+                        "x"
+                      )
+                    : 0
+                ) > 20
+              ) {
+                return;
+              }
+
+              this.soundSystem.play(
+                "click"
+              );
+
+              this.enterZoomMode(
+                itemData
+              );
+            };
+
             item.addEventListener(
               "click",
+              activateItem
+            );
+
+            item.addEventListener(
+              "touchend",
               (event) => {
-
-                event.preventDefault();
-
-                if (
-                  this.zoomState.isActive
-                ) {
-                  return;
+                if (event.touches.length === 0) {
+                  activateItem(event);
                 }
+              }
+            );
 
-                if (
-                  this.draggable &&
-                  Math.abs(
-                    this.draggable.getVelocity
-                      ? this.draggable.getVelocity(
-                          "x"
-                        )
-                      : 0
-                  ) > 20
-                ) {
-                  return;
+            item.addEventListener(
+              "pointerup",
+              (event) => {
+                if (event.pointerType === "touch") {
+                  activateItem(event);
                 }
-
-                this.soundSystem.play(
-                  "click"
-                );
-
-                this.enterZoomMode(
-                  itemData
-                );
-
               }
             );
 
